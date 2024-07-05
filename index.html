@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pixelizer</title>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="pixelizer.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.2/dist/cdn.min.js" defer></script>
+    
+</head>
+<body>
+<header class="container">
+    <h1>Palette Pixelizer</h1>
+</header>
+<main class="container" x-data="pixelizer">
+    <section id="process">
+        <div class="grid">
+            <!-- Image Preview Column -->
+            <div>
+                <div class="image-container" x-show="!image">
+                    <div class="image-preview">
+                        <p>Image Preview</p>
+                    </div>
+                </div>
+                <div class="image-container" x-show="image">
+                    <div class="image-preview">
+                        <img :src="image?.src" alt="Selected Image" class="preview">
+                    </div>
+                    <small x-text="`Source Resolution: ${image?.width} x ${image?.height}`"></small>
+                </div>
+            </div>
+            <!-- Settings and Inputs Column -->
+            <div>
+                <h3>Choose Image</h2>
+                <input type="file" accept="image/*" @change="handleImageUpload">
+                
+                <h3>Settings</h2>
+                <label>
+                    Downscale Factor: <span x-text="downscaleFactor"></span>
+                    <input id="downscaleFactor" type="range" x-model="downscaleFactor" min="2" max="32" />
+                    <small x-show="image" x-text="`Target Resolution: ${Math.floor(image?.width / downscaleFactor)} x ${Math.floor(image?.height / downscaleFactor)}`"></small>
+                </label>
+                
+                <label for="paletteSelect">
+                    Select Palettes
+                    <span x-text="`(${palettes.length})`"></span>
+                    <small>From <a href="https://lospec.com/palette-list" target="_blank">lospec.com</a></small>
+                </label>
+                <select id="paletteSelect" x-model="selectedPalettes" multiple>
+                    <template x-for="(palette, index) in palettes" :key="palette.name">
+                        <option :value="index" x-text="`${palette.name} [${palette.count}]`"></option>
+                    </template>
+                </select>
+                
+                <label for="dithering">
+                    Dithering <small>(Floyd-Steinberg)</small>: 
+                    <input id="dithering" type="checkbox" x-model="dithering">
+                </label>
+                
+                <progress x-show="processing" x-bind:value="processedImages.length" x-bind:max="selectedPalettes.length"></progress>
+                <button x-bind:disabled="processing" :class="`processing ? 'secondary : ''`" @click="processImage" x-text="processing ? 'Processing...' : 'Process'"></button>
+            </div>
+        </div>
+    </section>
+    <hr>
+    <section id="results">
+        <h2>Results</h2>
+        <div class="results">
+            <template x-for="(img, index) in processedImages" :key="index">
+                <article @click="open(index)" class="results-card">
+                    <header><small x-text="img.palette.name"></small></header>
+                    <img :src="img.src" :alt="img.palette.name" class="results-image">
+                    <footer><img :src="img.palette.url" :alt="img.palette.name" class="results-palette"></footer>
+                </div>
+            </template>
+        </div>
+    </section>
+    <dialog x-show="modalVisible" @click.away="close" x-bind:open="modalVisible">
+        <article>
+            <header>
+                <h3 x-text="processedImages[modalImageIndex]?.palette.name"></h3>
+                <img :src="processedImages[modalImageIndex]?.palette.url" :alt="processedImages[modalImageIndex]?.palette.name" class="palette">
+            </header>
+            <img :src="processedImages[modalImageIndex]?.src" alt="" class="fullscreen-image">
+            <footer>
+                <span x-text="`&nbsp;${modalImageIndex + 1} / ${processedImages.length}`&nbsp;"></span>
+                <kbd style="cursor: pointer;" @click="prev" aria-label="Previous">Prev</kbd>
+                <kbd style="cursor: pointer;" @click="next" aria-label="Next">Next</kbd>
+                <kbd style="cursor: pointer;" @click="close" aria-label="Close">Close</kbd>
+            </footer>
+        </article>
+    </dialog>
+</main>
+</body>
+</html>
