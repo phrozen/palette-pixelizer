@@ -63,10 +63,9 @@ window.pixelizer = () => {
             const worker = new Worker("worker.js");
             // Attach an event to get results and process next palette
             worker.onmessage = (e) => {
-                const { src } = e.data;
-                const palette = this.palettes[selectedPalettes.shift()];
-                console.log("Processed: ", palette.name)
-                this.processedImages.push({ src, palette });
+                const { src, name } = e.data;
+                console.log("Processed: ", name);
+                this.processedImages.push({ src, palette: this.palettes[selectedPalettes.shift()] });
                 if (selectedPalettes.length === 0) {
                     // Calculate elapsed time and print
                     console.log(`Processing completed in: ${(performance.now() - start).toFixed(2)} [ms]`);
@@ -76,12 +75,13 @@ window.pixelizer = () => {
                     setTimeout(() => worker.terminate(), 1000);
                 } else {
                     // Just send the next (current) palette to the worker
-                    worker.postMessage({buf, width, height, palette: palette.rgb, dithering});
+                    const palette = this.palettes[selectedPalettes[0]];
+                    worker.postMessage({name: palette.name, buf, width, height, palette: palette.rgb, dithering});
                 }
             };
             // Send the initial data and palette to the worker
-            const palette = this.palettes[selectedPalettes[0]].rgb;
-            worker.postMessage({buf, width, height, palette, dithering});
+            const palette = this.palettes[selectedPalettes[0]];
+            worker.postMessage({name: palette.name, buf, width, height, palette: palette.rgb, dithering});
         },
 
         open(index) {

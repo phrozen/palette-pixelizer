@@ -1,8 +1,8 @@
 
 self.onmessage = async function (e) {
-    const { buf, width, height, palette, dithering } = e.data;
+    const { name, buf, width, height, palette, dithering } = e.data;
     const processed = await processImage(buf, width, height, palette, dithering);
-    self.postMessage({ src: processed });
+    self.postMessage({ name, src: processed });
 };
 
 // Precompute Floyd-Steinberg fractions to avoid repeated division
