@@ -42,17 +42,25 @@
                 <h3>Settings</h2>
                 <label>
                     Downscale Factor: <span x-text="downscaleFactor"></span>
-                    <input id="downscaleFactor" type="range" x-model="downscaleFactor" min="2" max="32" />
+                    <input id="downscaleFactor" type="range" x-model="downscaleFactor" min="2" max="32">
                     <small x-show="image" x-text="`Target Resolution: ${Math.floor(image?.width / downscaleFactor)} x ${Math.floor(image?.height / downscaleFactor)}`"></small>
                 </label>
                 
                 <label for="paletteSelect">
                     Select Palettes
-                    <span x-text="`(${palettes.length})`"></span>
+                    <span x-text="`(${currentPalettes.length})`"></span>
                     <small>From <a href="https://lospec.com/palette-list" target="_blank">lospec.com</a></small>
                 </label>
+                <label>
+                    <input id="minColors" type="range" x-model="minColors" min="2" max="256" @change="filterPalettes">
+                    <small>Min colors: <span x-text="minColors"></span></small>
+                </label>
+                <label>
+                    <input id="maxColors" type="range" x-model="maxColors" min="2" max="256" @change="filterPalettes">
+                    <small>Max colors: <span x-text="maxColors"></span></small>
+                </label>
                 <select id="paletteSelect" x-model="selectedPalettes" multiple>
-                    <template x-for="(palette, index) in palettes" :key="palette.name">
+                    <template x-for="(palette, index) in currentPalettes" :key="palette.name">
                         <option :value="index" x-text="`${palette.name} [${palette.count}]`"></option>
                     </template>
                 </select>
@@ -64,6 +72,8 @@
                 
                 <progress x-show="processing" x-bind:value="processedImages.length" x-bind:max="selectedPalettes.length"></progress>
                 <button x-bind:disabled="processing" :class="`processing ? 'secondary : ''`" @click="processImage" x-text="processing ? 'Processing...' : 'Process'"></button>
+                <br>
+                <em><small x-show="elapsed > 0" x-text="`Processing time: ${elapsed} [s]`"></small></em>
             </div>
         </div>
     </section>

@@ -1,16 +1,18 @@
 window.pixelizer = () => {
     return {
         image: null,
-        sourceResolution: "",
-        targetResolution: "",
         downscaleFactor: 2,
         palettes: [],
+        currentPalettes: [],
+        minColors: 2,
+        maxColors: 256,
         selectedPalettes: [],
         processedImages: [],
         processing: false,
         dithering: true,
         modalVisible: false,
         modalImageIndex: 0,
+        elapsed: 0,
 
         async init() {
             const response = await fetch('palettes.json');
@@ -21,7 +23,11 @@ window.pixelizer = () => {
                 rgb: new Uint8ClampedArray(p.rgb),
                 url: `https://lospec.com/palette-list/${p.slug}-1x.png`
             }));
-            console.log("Palettes:", this.palettes)
+            this.filterPalettes();
+        },
+
+        filterPalettes() {
+            this.currentPalettes = this.palettes.filter(p => (this.minColors <= p.count && p.count <= this.maxColors));
         },
 
         handleImageUpload(event) {
@@ -47,6 +53,7 @@ window.pixelizer = () => {
             // Capture the values on this run
             const downscaleFactor = this.downscaleFactor;
             const selectedPalettes = Array.from(this.selectedPalettes);
+            const currentPalettes = Array.from(this.currentPalettes);
             const dithering = this.dithering;
             // Calculate the target resolution
             const width = Math.floor(this.image.width / downscaleFactor);
@@ -65,22 +72,23 @@ window.pixelizer = () => {
             worker.onmessage = (e) => {
                 const { src, name } = e.data;
                 console.log("Processed: ", name);
-                this.processedImages.push({ src, palette: this.palettes[selectedPalettes.shift()] });
+                this.processedImages.push({ src, palette: currentPalettes[selectedPalettes.shift()] });
                 if (selectedPalettes.length === 0) {
                     // Calculate elapsed time and print
-                    console.log(`Processing completed in: ${(performance.now() - start).toFixed(2)} [ms]`);
+                    this.elapsed = ((performance.now() - start)/1000).toFixed(3);
+                    console.log(`Processing completed in: ${this.elapsed} [s]`);
                     // If we are done with the palettes, stop processing and terminate worker
                     this.processing = false;
                     // Add a delay before terminating the worker to ensure the last image is fully handled
                     setTimeout(() => worker.terminate(), 1000);
                 } else {
                     // Just send the next (current) palette to the worker
-                    const palette = this.palettes[selectedPalettes[0]];
+                    const palette = currentPalettes[selectedPalettes[0]];
                     worker.postMessage({name: palette.name, buf, width, height, palette: palette.rgb, dithering});
                 }
             };
             // Send the initial data and palette to the worker
-            const palette = this.palettes[selectedPalettes[0]];
+            const palette = currentPalettes[selectedPalettes[0]];
             worker.postMessage({name: palette.name, buf, width, height, palette: palette.rgb, dithering});
         },
 
