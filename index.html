@@ -80,15 +80,18 @@
             </template>
         </div>
     </section>
-    <dialog x-show="modalVisible" @click.away="close" x-bind:open="modalVisible">
-        <article>
+    <dialog x-show="modalVisible" @click.away="close" x-bind:open="modalVisible" class="modal">
+        <article class="modal-card">
             <header>
                 <h3 x-text="processedImages[modalImageIndex]?.palette.name"></h3>
-                <img :src="processedImages[modalImageIndex]?.palette.url" :alt="processedImages[modalImageIndex]?.palette.name" class="palette">
+                <img :src="processedImages[modalImageIndex]?.palette.url" :alt="processedImages[modalImageIndex]?.palette.name" class="modal-palette">
             </header>
-            <img :src="processedImages[modalImageIndex]?.src" alt="" class="fullscreen-image">
+            <div class="modal-image-container">
+                <img :src="processedImages[modalImageIndex]?.src" alt="" class="modal">
+            </div>
             <footer>
-                <span x-text="`&nbsp;${modalImageIndex + 1} / ${processedImages.length}`&nbsp;"></span>
+                <span x-text="`${processedImages[modalImageIndex]?.palette.count} colors&nbsp;&nbsp;`"></span>
+                <span x-text="`&nbsp;${modalImageIndex + 1} / ${processedImages.length}&nbsp;`"></span>
                 <kbd style="cursor: pointer;" @click="prev" aria-label="Previous">Prev</kbd>
                 <kbd style="cursor: pointer;" @click="next" aria-label="Next">Next</kbd>
                 <kbd style="cursor: pointer;" @click="close" aria-label="Close">Close</kbd>
