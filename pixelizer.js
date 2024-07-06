@@ -46,7 +46,8 @@ window.pixelizer = () => {
             if (!this.image || this.selectedPalettes.length === 0) return;
             // Start timer
             const start = performance.now();
-            // Clear the processed images array
+            // Clear the processed images array by cleaning up images and reseting
+            this.processedImages.forEach(img => window.URL.revokeObjectURL(img.src));
             this.processedImages = [];
             this.processing = true;
             console.log("Processing...");
@@ -70,8 +71,9 @@ window.pixelizer = () => {
             const worker = new Worker("worker.js");
             // Attach an event to get results and process next palette
             worker.onmessage = (e) => {
-                const { src, name } = e.data;
+                const { name, processed } = e.data;
                 console.log("Processed: ", name);
+                const src = window.URL.createObjectURL(processed);
                 this.processedImages.push({ src, palette: currentPalettes[selectedPalettes.shift()] });
                 if (selectedPalettes.length === 0) {
                     // Calculate elapsed time and print
@@ -116,6 +118,27 @@ window.pixelizer = () => {
                 this.modalImageIndex = 0;
             }
         },
+
+        download() {
+            const img = this.processedImages[this.modalImageIndex];
+            if (img && img.src) {
+                const filename = `${img.src.split('/').pop()}.png`;
+                downloadImage(img.src, filename);
+            }
+        },
     };
 };
 
+/**
+ * Function to download an image from a given URL.
+ * @param {string} url - The URL of the image to download.
+ * @param {string} filename - The desired filename for the downloaded image.
+ */
+function downloadImage(url, filename) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}

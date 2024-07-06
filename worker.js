@@ -2,7 +2,7 @@
 self.onmessage = async function (e) {
     const { name, buf, width, height, palette, dithering } = e.data;
     const processed = await processImage(buf, width, height, palette, dithering);
-    self.postMessage({ name, src: processed });
+    self.postMessage({ name, processed });
 };
 
 // Precompute Floyd-Steinberg fractions to avoid repeated division
@@ -86,7 +86,7 @@ async function processImage(buf, width, height, palette, dithering) {
 
     targetCtx.putImageData(dst, 0, 0);
     const processed = await target.convertToBlob(); // Use convertToBlob for efficiency
-    return URL.createObjectURL(processed); // Create an object URL for the blob
+    return processed; // Create an object URL for the blob
 }
 
 /**
