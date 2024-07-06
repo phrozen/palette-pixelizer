@@ -78,6 +78,7 @@
         </div>
     </section>
     <hr>
+    <!-- Results section and previews -->
     <section id="results">
         <h2>Results</h2>
         <div class="results">
@@ -90,6 +91,7 @@
             </template>
         </div>
     </section>
+    <!-- Modal to show full screen -->
     <dialog x-show="modalVisible" @click.away="close" x-bind:open="modalVisible" class="modal">
         <article class="modal-card">
             <header>
@@ -100,11 +102,11 @@
                 <img :src="processedImages[modalImageIndex]?.src" alt="" class="modal">
             </div>
             <footer>
-                <span x-text="`${processedImages[modalImageIndex]?.palette.count} colors&nbsp;&nbsp;`"></span>
+                <span x-text="`${processedImages[modalImageIndex]?.palette.count} colors&nbsp;`"></span>
                 <span x-text="`&nbsp;${modalImageIndex + 1} / ${processedImages.length}&nbsp;`"></span>
-                <kbd style="cursor: pointer;" @click="prev" aria-label="Previous">Prev</kbd>
-                <kbd style="cursor: pointer;" @click="next" aria-label="Next">Next</kbd>
-                <kbd style="cursor: pointer;" @click="close" aria-label="Close">Close</kbd>
+                <kbd style="cursor: pointer;" @click="prev" aria-label="Previous">&nbsp;&lt;&nbsp;</kbd>
+                <kbd style="cursor: pointer;" @click="next" aria-label="Next">&nbsp;&gt;&nbsp;</kbd>
+                <kbd style="cursor: pointer;" @click="close" aria-label="Close">&nbsp;&times;&nbsp;</kbd>
                 <kbd style="cursor: pointer;" @click="download" aria-label="Download">Download</kbd>
             </footer>
         </article>
