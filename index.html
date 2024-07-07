@@ -99,19 +99,22 @@
     <dialog x-show="modalVisible" @click.away="close" x-bind:open="modalVisible" class="modal">
         <article class="modal-card">
             <header>
-                <h3 x-text="processedImages[modalImageIndex]?.palette.name"></h3>
-                <img :src="processedImages[modalImageIndex]?.palette.url" :alt="processedImages[modalImageIndex]?.palette.name" class="modal-palette">
+                <h3>
+                    <span x-text="modalImage?.palette.name"></span>
+                    <a :alt="modalImage.palette.name" :href="`https://lospec.com/palette-list/${modalImage?.palette.slug}`" title="View in Lospec" target="_blank" aria-label="Lospec">&#x1F517;</a>
+                </h3>
+                <img :src="modalImage?.palette.url" :alt="modalImage?.palette.name" class="modal-palette">
             </header>
             <div class="modal-image-container">
-                <img :src="processedImages[modalImageIndex]?.src" alt="" class="modal">
+                <img :src="modalImage?.src" class="modal">
             </div>
             <footer>
-                <span x-text="`${processedImages[modalImageIndex]?.palette.count} colors&nbsp;`"></span>
+                <span x-text="`${modalImage?.palette.count} colors&nbsp;`"></span>
                 <span x-text="`&nbsp;${modalImageIndex + 1} / ${processedImages.length}&nbsp;`"></span>
-                <kbd style="cursor: pointer;" @click="prev" aria-label="Previous">&nbsp;&lt;&nbsp;</kbd>
-                <kbd style="cursor: pointer;" @click="next" aria-label="Next">&nbsp;&gt;&nbsp;</kbd>
-                <kbd style="cursor: pointer;" @click="close" aria-label="Close">&nbsp;&times;&nbsp;</kbd>
-                <kbd style="cursor: pointer;" @click="download" aria-label="Download">Download</kbd>
+                <kbd @click="prev" aria-label="Previous">&nbsp;&lt;&nbsp;</kbd>
+                <kbd @click="next" aria-label="Next">&nbsp;&gt;&nbsp;</kbd>
+                <kbd @click="close" aria-label="Close">&nbsp;&times;&nbsp;</kbd>
+                <kbd @click="download" aria-label="Download">Download</kbd>
             </footer>
         </article>
     </dialog>

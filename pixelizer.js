@@ -11,6 +11,7 @@ window.pixelizer = () => {
         processing: false,
         dithering: true,
         modalVisible: false,
+        modalImage: null,
         modalImageIndex: 0,
         elapsed: 0,
         upscale: false,
@@ -22,6 +23,7 @@ window.pixelizer = () => {
                 name: p.name,
                 count: p.count,
                 rgb: new Uint8ClampedArray(p.rgb),
+                slug: p.slug,
                 url: p.url
             }));
             this.filterPalettes();
@@ -102,6 +104,7 @@ window.pixelizer = () => {
         open(index) {
             this.modalImageIndex = index;
             this.modalVisible = true;
+            this.modalImage = this.processedImages[this.modalImageIndex];
         },
 
         close() {
@@ -114,6 +117,7 @@ window.pixelizer = () => {
             } else {
                 this.modalImageIndex = this.processedImages.length - 1
             }
+            this.modalImage = this.processedImages[this.modalImageIndex];
         },
 
         next() {
@@ -122,13 +126,13 @@ window.pixelizer = () => {
             } else {
                 this.modalImageIndex = 0;
             }
+            this.modalImage = this.processedImages[this.modalImageIndex];
         },
 
         download() {
-            const img = this.processedImages[this.modalImageIndex];
-            if (img && img.src) {
-                const filename = `${img.src.split('/').pop()}.png`;
-                downloadImage(img.src, filename);
+            if (this.modalImage && this.modalImage.src) {
+                const filename = `${this.modalImage.src.split('/').pop()}.png`;
+                downloadImage(this.modalImage.src, filename);
             }
         },
     };
