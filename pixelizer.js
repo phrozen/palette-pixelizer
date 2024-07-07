@@ -22,7 +22,7 @@ window.pixelizer = () => {
                 name: p.name,
                 count: p.count,
                 rgb: new Uint8ClampedArray(p.rgb),
-                url: `https://lospec.com/palette-list/${p.slug}-1x.png`
+                url: p.url
             }));
             this.filterPalettes();
         },
