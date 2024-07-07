@@ -65,7 +65,7 @@
                 </label>
                 <select id="paletteSelect" x-model="selectedPalettes" multiple>
                     <template x-for="(palette, index) in currentPalettes" :key="palette.name">
-                        <option :value="index" x-text="`${palette.name} [${palette.count}]`"></option>
+                        <option :value="index" :title="palette.name" x-text="`${palette.name} [${palette.count}]`"></option>
                     </template>
                 </select>
                 
@@ -90,7 +90,7 @@
                 <article @click="open(index)" class="results-card">
                     <header><small x-text="img.palette.name"></small></header>
                     <img :src="img.src" :alt="img.palette.name" class="results-image">
-                    <footer><img :src="img.palette.url" :alt="img.palette.name" class="results-palette"></footer>
+                    <footer><img :src="img.palette.url" :title="`${img.palette.count} colors`" :alt="img.palette.name" class="results-palette"></footer>
                 </div>
             </template>
         </div>
