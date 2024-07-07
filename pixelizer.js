@@ -13,6 +13,7 @@ window.pixelizer = () => {
         modalVisible: false,
         modalImageIndex: 0,
         elapsed: 0,
+        upscale: false,
 
         async init() {
             const response = await fetch('palettes.json');
@@ -56,6 +57,8 @@ window.pixelizer = () => {
             const selectedPalettes = Array.from(this.selectedPalettes);
             const currentPalettes = Array.from(this.currentPalettes);
             const dithering = this.dithering;
+            const upscale = this.upscale;
+            const factor = this.downscaleFactor;
             // Calculate the target resolution
             const width = Math.floor(this.image.width / downscaleFactor);
             const height = Math.floor(this.image.height / downscaleFactor);
@@ -66,7 +69,7 @@ window.pixelizer = () => {
             ctx.imageSmoothingEnabled = false;
             ctx.drawImage(this.image, 0, 0, width, height);
             // Create an imageData buffer to pass to the worker
-            const buf = ctx.getImageData(0, 0, width, height).data.buffer;
+            const buffer = ctx.getImageData(0, 0, width, height).data.buffer;
             // Create a new worker
             const worker = new Worker("worker.js");
             // Attach an event to get results and process next palette
@@ -85,13 +88,15 @@ window.pixelizer = () => {
                     setTimeout(() => worker.terminate(), 1000);
                 } else {
                     // Just send the next (current) palette to the worker
-                    const palette = currentPalettes[selectedPalettes[0]];
-                    worker.postMessage({name: palette.name, buf, width, height, palette: palette.rgb, dithering});
+                    const name = currentPalettes[selectedPalettes[0]].name;
+                    const palette = currentPalettes[selectedPalettes[0]].rgb;
+                    worker.postMessage({name, buffer, width, height, palette, dithering, upscale, factor});
                 }
             };
             // Send the initial data and palette to the worker
-            const palette = currentPalettes[selectedPalettes[0]];
-            worker.postMessage({name: palette.name, buf, width, height, palette: palette.rgb, dithering});
+            const name = currentPalettes[selectedPalettes[0]].name;
+            const palette = currentPalettes[selectedPalettes[0]].rgb;
+            worker.postMessage({name, buffer, width, height, palette, dithering, upscale, factor});
         },
 
         open(index) {

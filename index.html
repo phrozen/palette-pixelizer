@@ -40,6 +40,10 @@
                 <input type="file" accept="image/*" @change="handleImageUpload">
                 
                 <h3>Settings</h2>
+                <label for="upscale">
+                    <small>Upscale back to original resolution:</small>
+                    <input id="upscale" type="checkbox" x-model="upscale">
+                </label>
                 <label>
                     Downscale Factor: <span x-text="downscaleFactor"></span>
                     <input id="downscaleFactor" type="range" x-model="downscaleFactor" min="2" max="32">

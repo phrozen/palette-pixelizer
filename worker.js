@@ -1,7 +1,8 @@
 
 self.onmessage = async function (e) {
-    const { name, buf, width, height, palette, dithering } = e.data;
-    const processed = await processImage(buf, width, height, palette, dithering);
+    const { name, buffer, width, height, palette, dithering, upscale, factor } = e.data;
+    //console.log(name, width, height, dithering, upscale, factor);
+    const processed = await processImage(buffer, width, height, palette, dithering, upscale, factor);
     self.postMessage({ name, processed });
 };
 
@@ -13,16 +14,18 @@ const f1_16 = 1 / 16;
 
 /**
  * Processes an image using nearest neighbor downscaling and optional dithering.
- * @param {buf} imageDataBuffer - The source image data buffer.
+ * @param {buffer} imageDataBuffer - The source image data buffer.
  * @param {number} width - The width of the image.
  * @param {number} height - The height of the image.
  * @param {Array} palette - The color palette for quantization.
  * @param {boolean} dithering - Whether to apply Floyd-Steinberg dithering.
+ * @param {boolean} upscale - Whether to upscale image back to original resolution.
+ * @param {number} factor - Downscale factor used on the original image (used for upscaling).
  * @returns {Promise<string>} - A promise that resolves to the processed image URL.
  */
-async function processImage(buf, width, height, palette, dithering) {
+async function processImage(buffer, width, height, palette, dithering, upscale, factor) {
     // Create a new ImageData for the given buffer
-    const src = new ImageData(new Uint8ClampedArray(buf), width, height);
+    const src = new ImageData(new Uint8ClampedArray(buffer), width, height);
     // Create an OffscreenCanvas for the processed image
     const target = new OffscreenCanvas(width, height);
     const targetCtx = target.getContext('2d', { willReadFrequently: true });
@@ -85,8 +88,18 @@ async function processImage(buf, width, height, palette, dithering) {
     }
 
     targetCtx.putImageData(dst, 0, 0);
-    const processed = await target.convertToBlob(); // Use convertToBlob for efficiency
-    return processed; // Create an object URL for the blob
+    let processed = null;
+    if (upscale) {
+        const upscaled = new OffscreenCanvas(width*factor, height*factor);
+        const ctx = upscaled.getContext("2d", { willReadFrequently: true });
+        // Disable image smoothing for nearest neighbor upscaling and draw image to it
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(target, 0, 0, width*factor, height*factor);
+        processed = await upscaled.convertToBlob();
+    } else {
+        processed = await target.convertToBlob();
+    }
+    return processed; // return processed blob
 }
 
 /**
