@@ -55,14 +55,18 @@
                     <span x-text="`(${currentPalettes.length})`"></span>
                     <small>From <a href="https://lospec.com/palette-list" target="_blank">lospec.com</a></small>
                 </label>
-                <label>
-                    <input id="minColors" type="range" x-model="minColors" min="2" max="256" @change="filterPalettes">
-                    <small>Min colors: <span x-text="minColors"></span></small>
-                </label>
-                <label>
-                    <input id="maxColors" type="range" x-model="maxColors" min="2" max="256" @change="filterPalettes">
-                    <small>Max colors: <span x-text="maxColors"></span></small>
-                </label>
+                <div id="paletteControls">
+                    <input type="text" placeholder="Filter" x-model="paletteName" @input="filterPalettes">
+                    <label>
+                        <input id="minColors" type="range" x-model="minColors" min="2" max="256" @change="filterPalettes">
+                        <small>Min colors: <span x-text="minColors"></span></small>
+                    </label>
+                    <label>
+                        <input id="maxColors" type="range" x-model="maxColors" min="2" max="256" @change="filterPalettes">
+                        <small>Max colors: <span x-text="maxColors"></span></small>
+                    </label>
+                </div>
+                
                 <select id="paletteSelect" x-model="selectedPalettes" multiple>
                     <template x-for="(palette, index) in currentPalettes" :key="palette.name">
                         <option :value="index" :title="palette.name" x-text="`${palette.name} [${palette.count}]`"></option>
@@ -70,14 +74,28 @@
                 </select>
                 
                 <label for="dithering">
-                    Dithering <small>(Floyd-Steinberg)</small>: 
-                    <input id="dithering" type="checkbox" x-model="dithering">
+                    Dithering: 
+                    <select id="dithering" x-model="dithering">
+                        <option value="">None</option>
+                        <option value="Atkinson">Atkinson</option>
+                        <option value="Burkes">Burkes</option>
+                        <option value="FloydSteinberg">Floyd-Steinberg</option>
+                        <option value="JarvisJudiceNinke">Jarvis, Judice and Ninke</option>
+                        <option value="ShiauFan">Shiau-Fan</option>
+                        <option value="Sierra">Sierra</option>
+                        <option value="SierraLite">Sierra Lite</option>
+                        <option value="SierraTwoRow">Two-Row Sierra</option>
+                        <option value="StevensonArce">Stevenson-Arce</option>
+                        <option value="Stucki">Stucki</option>
+                    </select>
                 </label>
                 
-                <progress x-show="processing" x-bind:value="processedImages.length" x-bind:max="selectedPalettes.length"></progress>
-                <button x-bind:disabled="processing" :class="`processing ? 'secondary : ''`" @click="processImage" x-text="processing ? 'Processing...' : 'Process'"></button>
-                <br>
-                <em><small x-show="elapsed > 0" x-text="`Processing time: ${elapsed} [s]`"></small></em>
+                <div>
+                    <progress x-show="processing" x-bind:value="processedImages.length" x-bind:max="selectedPalettes.length"></progress>
+                    <button x-bind:disabled="processing" :class="`processing ? 'secondary : ''`" @click="processImage" x-text="processing ? 'Processing...' : 'Process'"></button>
+                    <br>
+                    <em><small x-show="elapsed > 0" x-text="`Processing time: ${elapsed} [s]`"></small></em>
+                </div>
             </div>
         </div>
     </section>
@@ -101,7 +119,7 @@
             <header>
                 <h3>
                     <span x-text="modalImage?.palette.name"></span>
-                    <a :alt="modalImage.palette.name" :href="`https://lospec.com/palette-list/${modalImage?.palette.slug}`" title="View in Lospec" target="_blank" aria-label="Lospec">&#x1F517;</a>
+                    <a :alt="modalImage?.palette.name" :href="`https://lospec.com/palette-list/${modalImage?.palette.slug}`" title="View in Lospec" target="_blank" aria-label="Lospec">&#x1F517;</a>
                 </h3>
                 <img :src="modalImage?.palette.url" :alt="modalImage?.palette.name" class="modal-palette">
             </header>

@@ -6,10 +6,11 @@ window.pixelizer = () => {
         currentPalettes: [],
         minColors: 2,
         maxColors: 256,
+        paletteName: "",
         selectedPalettes: [],
         processedImages: [],
         processing: false,
-        dithering: true,
+        dithering: "",
         modalVisible: false,
         modalImage: null,
         modalImageIndex: 0,
@@ -20,17 +21,20 @@ window.pixelizer = () => {
             const response = await fetch('palettes.json');
             const json = await response.json();
             this.palettes = json.map(p => ({
-                name: p.name,
+                name: p.name.trim(),
                 count: p.count,
                 rgb: new Uint8ClampedArray(p.rgb),
                 slug: p.slug,
                 url: p.url
             }));
+            console.log("Palettes loaded:", this.palettes.length);
             this.filterPalettes();
         },
 
         filterPalettes() {
-            this.currentPalettes = this.palettes.filter(p => (this.minColors <= p.count && p.count <= this.maxColors));
+            this.currentPalettes = this.palettes.filter(p => {
+                return (this.minColors <= p.count && p.count <= this.maxColors && p.slug.includes(this.paletteName));
+            });
         },
 
         handleImageUpload(event) {
